@@ -6,6 +6,9 @@
     "type": "git",
     "url": "https://github.com/nsharmon/zimpits.git"
   },
+  "scripts": {
+    "start": "nodemon app.js"
+  },
   "dependencies": {
     "express": ">= 4.12.0",
     "socket.io": "^1.3.5"
