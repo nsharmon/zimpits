@@ -1,6 +1,12 @@
-require(['skillset'], function   (skillset) {
+require.config({
+	paths: {
+		bluebird: 'lib/bluebird.min'
+	}
+});
+
+require(['skillset'], function   (SkillSet) {
 	//var img = document.getElementById('iconlist');
-	var skills = new skillset.SkillSet('/img/iconlist.png');
+	var skills = new SkillSet('/img/iconlist.png');
 	
 	skills.getList.then(function (skillList) {
 		var skillBin = document.getElementById('skillBin');

@@ -1,42 +1,16 @@
-define(function () {
-	var defaults = {
-		padding: {
-			x: 15,
-			y: 15
-		},
-		size: {
-			x: 199,
-			y: 199
-		}
-	};
-	
-	function Skill(offsetX, offsetY, size, imgSrc) {
-		function makeImage(perc) {
-			perc = perc || 1.0;
-			
-			var img = document.createElement('div');
-			img.classList.add('skill');
-			img.style.backgroundImage = 'url(' + imgSrc + ')';
-			img.style.backgroundPosition = -offsetX + 'px ' + -offsetY + 'px';
-			img.style.width=size.x + 'px';
-			img.style.height=size.y + 'px';
-			img.style.transform = 'scale(' + perc + ')';
-			img.style.marginLeft = -(1 - perc)*size.x + 'px';
-			img.style.marginTop = -(1 - perc)*size.y + 'px';
-			img.setAttribute('draggable', 'true');
-			return img;
-		}
-		
-		return {
-			makeImage : makeImage,
-			offset: {
-				x: offsetX,
-				y: offsetY
+define(['skill', 'bluebird'], function (Skill, BlueBird) {
+	function SkillSet(img, options) {
+		var defaults = {
+			padding: {
+				x: 15,
+				y: 15
+			},
+			size: {
+				x: 199,
+				y: 199
 			}
 		};
-	}
 	
-	function SkillSet(img, options) {
 		var skillLoadPromise;
 		var list = [];
 		
@@ -55,7 +29,7 @@ define(function () {
 		function init() {
 			options = merge(options, defaults);
 			
-			skillLoadPromise = new Promise(function(resolve, reject) {
+			skillLoadPromise = new BlueBird.Promise(function(resolve, reject) {
 				if(typeof img === 'string') {
 					var imgTag = document.createElement("img");
 					img.onload = function() {
@@ -96,12 +70,10 @@ define(function () {
 		init();
 		
 		return {
-			getList: skillLoadPromise
+			getList: skillLoadPromise,
+			defaults: defaults
 		};
 	}
 
-	return {
-		defaults: defaults,
-		SkillSet: SkillSet
-	}
+	return SkillSet;
 });
