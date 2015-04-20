@@ -4,9 +4,13 @@ require.config({
 	}
 });
 
-require(['skillset'], function   (SkillSet) {
+require(['skillbin', 'eventbus'], function   (SkillBin, EventBus) {
+	EventBus.addCallback('skillinit', function(skill) {
+		console.log('added new skill ' + skill.name);
+	});
+
 	//var img = document.getElementById('iconlist');
-	var skills = new SkillSet('/img/iconlist.png');
+	var skills = new SkillBin('/img/iconlist.png');
 	
 	skills.getList.then(function (skillList) {
 		var skillBin = document.getElementById('skillBin');
