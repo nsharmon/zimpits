@@ -13,6 +13,7 @@ define(function() {
 			img.style.marginLeft = -(1 - perc)*size.x + 'px';
 			img.style.marginTop = -(1 - perc)*size.y + 'px';
 			img.setAttribute('draggable', 'true');
+			img.setAttribute('alt', this.name);
 			return img;
 		}
 		
