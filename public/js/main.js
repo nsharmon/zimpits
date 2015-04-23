@@ -4,8 +4,8 @@ require.config({
 	}
 });
 
-require(['skillbin', 'eventbus'], function   (SkillBin, EventBus) {
-	EventBus.addCallback('skillinit', function(event, skill) {
+require(['skill', 'skillbin', 'eventbus'], function   (Skill, SkillBin, EventBus) {
+	EventBus.addCallback('skilladd', function(event, skill) {
 		console.log('added new skill ' + skill.name);
 	});
 
@@ -21,11 +21,5 @@ require(['skillbin', 'eventbus'], function   (SkillBin, EventBus) {
 		]
 	});
 	
-	skills.getList.then(function (skillList) {
-		var skillBin = document.getElementById('skillBin');
-		skillList.forEach(function(skill) {
-			var btn = skill.makeImage(0.5);
-			skillBin.appendChild(btn);
-		});
-	});
+	skills.appendTo(document.getElementById('skillBin'), 0.5);
 });

@@ -12,6 +12,7 @@ define(['skill', 'bluebird', 'eventbus'], function (Skill, BlueBird, EventBus) {
 			names: undefined
 		};
 	
+		var self = this;
 		var skillLoadPromise;
 		var list = [];
 		
@@ -69,11 +70,9 @@ define(['skill', 'bluebird', 'eventbus'], function (Skill, BlueBird, EventBus) {
 			for(var i=options.padding.x; i+options.size.x <= img.width; i+=options.size.x + 2*options.padding.x) {
 				var posY = 0;
 				for(var j=options.padding.y; j+options.size.y <= img.height; j+=options.size.y + 2*options.padding.y) {
-					var skill = new Skill(i, j, options.size, img.src);
-					skill.name = getName(posX, posY);
+					var skill = new Skill(getName(posX, posY), i, j, options.size, img.src);
 					
-					list.push(skill);
-					EventBus.trigger('skillinit', skill);
+					addSkill(skill);
 					
 					posY++;
 				}
@@ -81,10 +80,34 @@ define(['skill', 'bluebird', 'eventbus'], function (Skill, BlueBird, EventBus) {
 			}
 		}
 		
+		function addSkill(skill) {
+			list.push(skill);
+			EventBus.trigger('skilladd', skill);
+		}
+		
+		function appendSkillTo(skill, container, perc) {
+			perc = perc || 1.0;
+			var btn = skill.getImage(perc);
+			container.appendChild(btn);
+		}
+		
+		function appendTo(container, perc) {
+			skillLoadPromise.then(function(skillList) {
+				skillList.forEach(function(skill) {
+					appendSkillTo(skill, container, perc);
+				});
+				var emptySlot = new Skill('Empty slot');
+				addSkill(emptySlot);
+				appendSkillTo(emptySlot, container, perc);
+			});
+		}
+		
 		init();
 		
 		return {
 			getList: skillLoadPromise,
+			addSkill: addSkill,
+			appendTo: appendTo,
 			defaults: defaults
 		};
 	}
