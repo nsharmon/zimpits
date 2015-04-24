@@ -2,17 +2,24 @@
 	<head>
 		<title>Home</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<style src="/css/common.css" ></style>
+		<link rel="stylesheet" href="/css/common.css">
 		<style>
 			#skillBin {
-				width: 405px;
-				float: right;
+				width: 325px;
+				position: absolute;
+				right: 0px;
 			}
-			#skillBin > .skill {
+			#skillSet {
+				width: 900px;
+				position: fixed;
+				bottom: 0px;
+			}
+			#skillBin > .skill, #skillSet > .skill {
 				float:left;
 			}
 			.skill {
 				border: 4px solid;
+				background-color: #ddd;
 			}
 			main {
 				width: 800px;
@@ -26,7 +33,8 @@
 	<body>
 		<h1>Welcome to zimpits</h1>
 		<main>
-			<figure id="skillBin" />
+			<figure id="skillBin" ></figure>
+			<figure id="skillSet" ></figure>
 		</main>
 	</body>
 </html>

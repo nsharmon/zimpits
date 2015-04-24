@@ -1,4 +1,4 @@
-define(function() {
+define(['eventbus'], function(EventBus) {
 	var skillTemplate;
 	
 	function makeTemplate(perc, size) {
@@ -7,15 +7,16 @@ define(function() {
 		img.style.width=size.x + 'px';
 		img.style.height=size.y + 'px';
 		img.style.transform = 'scale(' + perc + ')';
-		img.style.marginLeft = -(1 - perc)*size.x + 'px';
-		img.style.marginTop = -(1 - perc)*size.y + 'px';
+		img.style.margin = -((1 - perc)*size.x)/2 + 'px';
 		img.setAttribute('draggable', 'true');
-		
+
 		return img;
 	}
 	
-	function Skill(name, offsetX, offsetY, size, imgSrc) {
-		function getImage(perc) {
+	function Skill(name, offsetX, offsetY, size, imgSrc, perc) {
+		var self = this;
+		
+		function getImage() {
 			if(!this.element) {
 				if(!skillTemplate) {
 					perc = perc || 1.0;
@@ -32,12 +33,34 @@ define(function() {
 					this.element.setAttribute('alt', name);
 					this.element.setAttribute('title', name);
 				}
+				this.element.ondragstart = function() {
+					EventBus.trigger('skilldragstart', self);
+				};
+				this.element.ondragdrop = function() {
+					EventBus.trigger('skilldragdrop', self);
+				};
+				this.element.ondragenter = function() {
+					EventBus.trigger('skilldragenter', self);
+				};
+				this.element.ondragleave = function() {
+					EventBus.trigger('skilldragleave', self);
+				};				
+				this.element.ondragend = function() {
+					EventBus.trigger('skilldragend', self);
+				};
 			}
 			return this.element;
 		}
 		
+		function detach() {
+			if(this.element) {
+				this.element.parentNode.removeNode(this.element);
+			}
+		}
+		
 		return {
 			name : name,
+			detach: detach,
 			getImage : getImage,
 			offset: {
 				x: offsetX,
