@@ -1,4 +1,4 @@
-define(['skill', 'utils'], function (Skill, Utils) {
+define(['skill', 'utils', 'eventbus'], function (Skill, Utils, EventBus) {
 	var defaults = {
 		slots: 8
 	};
@@ -15,6 +15,10 @@ define(['skill', 'utils'], function (Skill, Utils) {
 			}
 		}
 		
+		function onDrop(event) {
+			console.log('skill dropped');
+		}
+		
 		function insert(skill, index) {
 			removeAt(index);
 			
@@ -22,13 +26,22 @@ define(['skill', 'utils'], function (Skill, Utils) {
 			skill.index = index 
 			skillArray[index] = skill;
 			
-			container.appendChild(skill.getImage());
+			var skillEle = skill.getImage();
+			container.appendChild(skillEle);
+			
+			skillEle.addEventListener('dragover', Utils.preventDefault);
+			skillEle.addEventListener('drop', onDrop);
+			
+			EventBus.trigger('skillsetadd', skill);
 		}
 		
 		function removeAt(index, replaceWithPlaceholder) {
 			var existingSkill = skillArray[index];
 
 			if(existingSkill) {
+				var skillEle = existingSkill.getImage();
+				skillEle.removeEventListener('dragover', Utils.preventDefault);
+				skillEle.removeEventListener('drop', onDrop);
 				existingSkill.detach();
 				delete skillArray[index];
 				delete skills[existingSkill.name];

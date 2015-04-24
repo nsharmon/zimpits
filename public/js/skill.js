@@ -33,21 +33,22 @@ define(['eventbus'], function(EventBus) {
 					this.element.setAttribute('alt', name);
 					this.element.setAttribute('title', name);
 				}
-				this.element.ondragstart = function() {
+				this.element.addEventListener('dragstart', function() {
 					EventBus.trigger('skilldragstart', self);
-				};
-				this.element.ondragdrop = function() {
+				});
+				this.element.addEventListener('dragdrop', function() {
 					EventBus.trigger('skilldragdrop', self);
-				};
-				this.element.ondragenter = function() {
+				});
+				this.element.addEventListener('dragenter', function() {
 					EventBus.trigger('skilldragenter', self);
-				};
-				this.element.ondragleave = function() {
+				});
+				this.element.addEventListener('dragleave', function() {
 					EventBus.trigger('skilldragleave', self);
-				};				
-				this.element.ondragend = function() {
+				});
+				this.element.addEventListener('dragend', function() {
 					EventBus.trigger('skilldragend', self);
-				};
+				});
+				this.element.skill = self;
 			}
 			return this.element;
 		}
