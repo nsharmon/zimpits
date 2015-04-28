@@ -15,6 +15,11 @@ define(['eventbus'], function(EventBus) {
 	
 	function Skill(name, offsetX, offsetY, size, imgSrc, perc) {
 		var self = this;
+		var publicSelf;
+		
+		function publish(evt) {
+			EventBus.trigger('skill' + evt.type, publicSelf);
+		}
 		
 		function getImage() {
 			if(!this.element) {
@@ -33,41 +38,37 @@ define(['eventbus'], function(EventBus) {
 					this.element.setAttribute('alt', name);
 					this.element.setAttribute('title', name);
 				}
-				this.element.addEventListener('dragstart', function() {
-					EventBus.trigger('skilldragstart', self);
+				this.element.addEventListener('dragstart', function(evt) {
+					evt.dataTransfer.setData("text/plain", name);
+					publish(evt);
 				});
-				this.element.addEventListener('dragdrop', function() {
-					EventBus.trigger('skilldragdrop', self);
-				});
-				this.element.addEventListener('dragenter', function() {
-					EventBus.trigger('skilldragenter', self);
-				});
-				this.element.addEventListener('dragleave', function() {
-					EventBus.trigger('skilldragleave', self);
-				});
-				this.element.addEventListener('dragend', function() {
-					EventBus.trigger('skilldragend', self);
-				});
-				this.element.skill = self;
+				this.element.addEventListener('dragdrop', publish);
+				this.element.addEventListener('dragenter',publish);
+				this.element.addEventListener('dragleave', publish);
+				this.element.addEventListener('dragend', publish);
+				
+				this.element.skill = publicSelf;
 			}
 			return this.element;
 		}
 		
 		function detach() {
-			if(this.element) {
-				this.element.parentNode.removeNode(this.element);
+			if(this.element && this.element.parentNode) {
+				this.element.parentNode.removeChild(this.element);
 			}
 		}
 		
-		return {
+		publicSelf = {
 			name : name,
 			detach: detach,
 			getImage : getImage,
+			empty : !imgSrc,
 			offset: {
 				x: offsetX,
 				y: offsetY
 			}
 		};
+		return publicSelf;
 	}
 	
 	return Skill;

@@ -16,6 +16,7 @@ define(['skill', 'bluebird', 'eventbus', 'utils'], function (Skill, BlueBird, Ev
 		var self = this;
 		var loadListPromise;
 		var list = [];
+		var map = {};
 		
 		function init() {
 			options = Utils.merge(options, defaults);
@@ -71,11 +72,28 @@ define(['skill', 'bluebird', 'eventbus', 'utils'], function (Skill, BlueBird, Ev
 		
 		function addSkill(skill) {
 			list.push(skill);
+			map[skill.name] = skill;
 			
-			var btn = skill.getImage();
-			container.appendChild(btn);
+			enableSkill(skill, true);
 			
 			EventBus.trigger('skilladd', skill);
+		}
+		
+		function enableSkill(skill, enable) {
+			if(map[skill.name]) {
+				if(enable && !container.contains(skill.getImage())) {
+					skill.detach();
+					
+					var btn = skill.getImage();
+					container.appendChild(btn);
+				} else if (!enable && container.contains(skill.getImage())) {
+					skill.detach();
+				}
+			}
+		}
+		
+		function getSkillByName(skillName) {
+			return map[skillName];
 		}
 		
 		init();
@@ -84,6 +102,8 @@ define(['skill', 'bluebird', 'eventbus', 'utils'], function (Skill, BlueBird, Ev
 			container: container,
 			loadList: loadListPromise,
 			addSkill: addSkill,
+			enableSkill: enableSkill,
+			getSkillByName: getSkillByName,
 			defaults: defaults
 		};
 	}
