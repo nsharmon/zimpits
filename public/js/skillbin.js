@@ -1,4 +1,4 @@
-define(['skill', 'bluebird', 'eventbus', 'utils'], function (Skill, BlueBird, EventBus, Utils) {
+define(['skill', 'bluebird', 'eventbus', 'utils/utils'], function (Skill, BlueBird, EventBus, Utils) {
 	function SkillBin(container, img, options) {
 		var defaults = {
 			padding: {

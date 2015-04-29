@@ -1,13 +1,16 @@
-define(['skill', 'utils', 'eventbus'], function (Skill, Utils, EventBus) {
+define(['skill', 'utils/utils', 'eventbus', 'utils/draghandler'], function (Skill, Utils, EventBus, DragHandler) {
 	var defaults = {
 		slots: 8
 	};
+	var EMPTY = 0, PARTIAL = 1, FULL = 2;
 	
 	function SkillSet(container, skillbin, options) {
 		options = Utils.merge(options, defaults);
 		
+		var dragHandler = new DragHandler(skillbin, onDropSkill.bind(this), onDropOutSkill.bind(this));
 		var skills = {};
 		var skillArray = [];
+		var skillBarStatus = EMPTY;
 		
 		function init() {
 			for(var i=0; i<options.slots; i++) {
@@ -16,32 +19,54 @@ define(['skill', 'utils', 'eventbus'], function (Skill, Utils, EventBus) {
 			render();
 		}
 		
+		function updateStatus(full, empty) {
+			if(full && skillBarStatus !== FULL) {
+				skillBarStatus = FULL;
+				EventBus.trigger('skillset statuschange', publicSelf);
+			} else if (empty && skillBarStatus !== EMPTY) {
+				skillBarStatus = EMPTY;
+				EventBus.trigger('skillset statuschange', publicSelf);
+			} else if (!full && !empty && skillBarStatus !== PARTIAL) {
+				skillBarStatus = PARTIAL;
+				EventBus.trigger('skillset statuschange', publicSelf);
+			}
+		}
+		
 		function render() {
 			// empty container
 			while (container.firstChild) {
 				container.removeChild(container.firstChild);
 			}
+			var full = true;
+			var empty = true;
 			skillArray.forEach(function(skill) {
 				container.appendChild(skill.getImage());
+				if(skill.empty) {
+					full = false;
+				} else {
+					empty = false;
+				}
 			});
+			updateStatus(full, empty);
 		}
 		
-		function onDropSkill(event) {
-			event.preventDefault();
+		function onDropOutSkill(skill, atIndex) {
+			removeAt(atIndex, true);
 			
-			var skillName = event.dataTransfer.getData("text/plain");
-			var skill = skillbin.getSkillByName(skillName);
-			
-			var currentSkill = skills[skillName];
+			render();
+		}
+		
+		function onDropSkill(skill, atIndex) {
+			var currentSkill = skills[skill.name];
 			var currentSkillIndex = currentSkill ? currentSkill.index : 0;
-			var replaced = insert(skill, event.srcElement.skill.index);
+			var replaced = insert(skill, atIndex);
 			
 			if(currentSkill && !replaced.empty) {
+				console.log('replace');
 				insert(replaced, currentSkillIndex);
 			}
-			render();
 			
-			console.log('skill dropped ' + skill.name);
+			render();
 		}
 		
 		function insert(skill, index) {
@@ -58,31 +83,22 @@ define(['skill', 'utils', 'eventbus'], function (Skill, Utils, EventBus) {
 			skills[skill.name] = skill;
 			skill.index = index 
 			
-			console.log('Setting skill ' + skill.name + ' at position ' + skill.index);
 			skillArray[index] = skill;
 			
 			var skillEle = skill.getImage();
-			toggleListeners(skillEle, true);
+			dragHandler.toggleListeners(skillEle, true);
 			
 			EventBus.trigger('skillsetadd', skill);
 			
 			return replaced;
 		}
 		
-		function toggleListeners(skillEle, add) {
-			var eventFunc = add ? skillEle.addEventListener.bind(skillEle) : skillEle.removeEventListener.bind(skillEle);
-			
-			eventFunc('dragover', Utils.preventDefault);
-			eventFunc('drop', onDropSkill);
-		}
-		
 		function removeAt(index, replaceWithPlaceholder) {
 			var existingSkill = skillArray[index];
 
 			if(existingSkill && !existingSkill.empty) {
-				console.log('Removing skill ' + existingSkill.name + ' at position ' + existingSkill.index);
 				var skillEle = existingSkill.getImage();
-				toggleListeners(skillEle, false);
+				dragHandler.toggleListeners(skillEle, false);
 				
 				if(!existingSkill.empty) {
 					skillbin.enableSkill(existingSkill, true);
@@ -106,12 +122,17 @@ define(['skill', 'utils', 'eventbus'], function (Skill, Utils, EventBus) {
 			insert(emptySlot, index);
 		}
 		
+		var publicSelf = {
+			container: container,
+			insert: insert,
+			getStatus: function() {
+				return skillBarStatus;
+			}
+		};
+		
 		init();
 		
-		return {
-			container: container,
-			insert: insert
-		};
+		return publicSelf;
 	}
 	
 	return SkillSet;

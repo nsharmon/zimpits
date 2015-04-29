@@ -4,6 +4,9 @@ define(['skillset', 'skillbin', 'eventbus', 'skillnames'], function   (SkillSet,
 			EventBus.addCallback('skilladd', function(event, skill) {
 				console.log('added new skill ' + skill.name);
 			});
+			EventBus.addCallback('skillset statuschange', function(event, skillSet) {
+				console.log('New status  ' + skillSet.getStatus());
+			});	
 			
 			//var img = document.getElementById('iconlist');
 			var skillBinEle = document.getElementById('skillBin');
